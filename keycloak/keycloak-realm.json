@@ -1,0 +1,33 @@
+{
+	"realm": "secure-platform",
+	"enabled": true,
+	"users": [
+		{
+			"username": "demo",
+			"enabled": true,
+			"emailVerified": true,
+			"firstName": "Demo",
+			"lastName": "User",
+			"credentials": [
+				{
+					"type": "password",
+					"value": "demo",
+					"temporary": false
+				}
+			]
+		}
+	],
+	"clients": [
+		{
+			"clientId": "kong-client",
+			"secret": "kong-secret",
+			"enabled": true,
+			"protocol": "openid-connect",
+			"publicClient": false,
+			"standardFlowEnabled": true,
+			"directAccessGrantsEnabled": true,
+			"redirectUris": ["*"],
+			"webOrigins": ["*"]
+		}
+	]
+}

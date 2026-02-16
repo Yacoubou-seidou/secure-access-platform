@@ -1,0 +1,27 @@
+services:
+  - name: cerbos
+    url: http://cerbos:3592
+    routes:
+      - name: cerbos-route
+        paths:
+          - /admin/auditlog/list/KIND_DECISION
+        strip_path: false
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+          key_claim_name: iss
+          uri_param_names: []
+          jwks_uri: http://keycloak:8080/realms/secure-platform/protocol/openid-connect/certs
+      - name: rate-limiting
+        config:
+          second: 20
+          minute: 500
+
+consumers:
+  - username: demo
+    custom_id: demo-user
+    jwt_secrets:
+      - key: http://keycloak:8080/realms/secure-platform
+        algorithm: RS256

@@ -1,0 +1,23 @@
+server:
+  apiExplorerEnabled: true
+  httpListenAddr: ":3592"
+  grpcListenAddr: ":3593"
+
+  adminAPI:
+    enabled: true
+    adminCredentials:
+      username: cerbos
+      passwordHash: JDJ5JDEwJGJWcFRKUzJKRzYxOTJERWs5SzZaS2VSb2Z1cXNSeTYzam9NR1U5UkVKM3BtZ1VLQUVuM0xlCgo=
+
+audit:
+  enabled: true
+  accessLogsEnabled: true
+  backend: local
+  local:
+    storagePath: /auditlogs
+    retentionPeriod: 168h
+
+storage:
+  driver: disk
+  disk:
+    directory: /policies

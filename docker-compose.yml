@@ -1,0 +1,72 @@
+services:
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - keycloak_db:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - secure-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.1
+    command: ["start-dev","--import-realm"]
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB: ${KC_DB}
+      KC_DB_URL_HOST: postgres
+      KC_DB_USERNAME: ${KC_DB_USERNAME}
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD}
+    volumes:
+      - ./keycloak/keycloak-realm.json:/opt/keycloak/data/import/keycloak-realm.json:ro
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    networks:
+      - secure-net
+
+  kong:
+    image: kong:3.6
+    container_name: kong-gateway
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: "/etc/kong.yml"
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+    ports:
+      - "8000:8000"
+      - "8443:8443"
+      - "8001:8001"
+    volumes:
+      - ./kong/kong.yml:/etc/kong.yml:ro
+    depends_on:
+      - keycloak
+    restart: unless-stopped
+    networks:
+      - secure-net
+
+  cerbos:
+    image: cerbos/cerbos:latest
+    volumes:
+      - ./cerbos/config:/config
+      - ./cerbos/policies:/policies
+    command: ["server","--config=/config/config.yaml"]
+    restart: unless-stopped
+    networks:
+      - secure-net
+
+volumes:
+  keycloak_db:
+
+networks:
+  secure-net:

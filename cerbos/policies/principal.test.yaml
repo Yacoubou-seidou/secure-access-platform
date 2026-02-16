@@ -1,0 +1,29 @@
+apiVersion: api.cerbos.dev/v1
+principalPolicy:
+  principal: any
+  version: default
+
+  variables:
+    local:
+      is_admin: request.principal.roles.exists(r, r == "admin")
+
+  rules:
+    - resource: document
+      actions:
+        - name: allow_admin_all
+          action: "*"
+          effect: EFFECT_ALLOW
+          condition:
+            match:
+              expr: variables.is_admin
+
+        - name: allow_user_read
+          action: "read"
+          effect: EFFECT_ALLOW
+          condition:
+            match:
+              expr: request.principal.roles.exists(r, r == "user")
+
+        - name: deny_everything_else
+          action: "*"
+          effect: EFFECT_DENY
